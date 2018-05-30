@@ -26,9 +26,9 @@
 			.m-read-content h4 {
 			    font-size: 20px;
 			    color: #736357;
-                border-bottom: solid 1px #736357;
-                letter-spacing: 2px;
-                margin: 0 0 1em 0;			    
+			    border-bottom: solid 1px #736357;
+			    letter-spacing: 2px;
+			    margin: 0 0 1em 0;			    
 			}
 			.m-read-content p {
 			    text-indent: 2em;
@@ -85,6 +85,63 @@
 				left: 42px;
 				color: #d5d5d6;
 			}
+			.nav-pannel-bk {
+				position: fixed;
+				bottom: 70px;
+				height: 135px;
+				background: #000;
+				width: 100%;
+				color: #fff;
+				opacity: 0.9;
+				z-index: 10000
+			}
+			.nav-pannel {
+				position: fixed;
+				bottom: 70px;
+				height: 135px;
+				background: none;
+				width: 100%;
+				color: #fff;
+				z-index: 10001
+			}
+			.child-mod {
+				padding: 5px 10px;
+				margin-top: 15px
+			}
+			.child-mod span {
+				display: inline-block;
+				padding-right: 20px;
+				padding-left: 10px;
+			}
+			.font-size-button {
+				background: none;
+				border: 1px #8c8c8c solid;
+				padding: 5px 40px;
+				color: #fff;
+				border-radius: 16px;
+			}
+			.child-mod button:nth-child(2) {
+				margin-right: 10px;
+			}
+			.bk-container {
+				position: relative;
+				height: 30px;
+				width: 30px;
+				background: #fff;
+				border-radius: 15px;
+				display: inline-block;
+				vertical-align: -14px;
+			}
+			.bk-container-current {
+				position: absolute;
+				height: 32px;
+				width: 32px;
+				border-radius: 16px;
+				display: inline-block;
+				border: 1px #ff7800 solid;
+				top: -2px;
+				left: -2px;
+			}
 		</style>
 	</head>
 	<body>
@@ -93,9 +150,7 @@
 		    	<div class="icon-back"></div>
 		    	<div class="nav-title">返回书架</div>
 		    </div>
-			<div id="fiction_chapter_title">
-				
-			</div>
+			<div id="fiction_chapter_title"></div>
 			<div id="fiction_container" class="m-read-content">
 			    <h4>程序员遭"恶妻"勒索千万自杀</h4>
 				<p>
@@ -132,6 +187,20 @@
 					<li id="prev_button">上一章</li>
 					<li id="next_button">下一章</li>
 				</ul>
+			</div>
+			<div class="nav-pannel-bk"></div>
+			<div class="nav-pannel" id="font-container">
+				<div class="child-mod">
+					<span>字号</span>
+					<button id="large-font" class="font-size-button">大</button>
+					<button id="small-font" class="font-size-button">小</button>
+				</div>
+				<div class="child-mod" id="bk-container">
+					<span>背景</span>
+					<div class="bk-container">
+						<div class="bk-container-current"></div>
+					</div>
+				</div>
 			</div>
 		</div>
 		<script src="lib/zepto.min.js"></script>
