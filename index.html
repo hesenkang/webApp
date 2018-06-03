@@ -221,11 +221,12 @@
 				width: 30%;
 				height: 100%;
 			}
+			/*屏幕中部隐藏图层*/
 			.artical-action-mid {
 				position: fixed;
 				z-index: 10003;
 				width: 100%;
-				height: 40%;
+				height: 30%;
 				top: 30%;
 			}
 		</style>
@@ -370,6 +371,7 @@
 						} else {
 							Dom.bottom_nav.hide();
 							Dom.top_nav.hide();
+							Dom.font_container.hide();
 						}
 					});
 					
