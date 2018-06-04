@@ -132,6 +132,16 @@
 				vertical-align: -14px;
 				margin-right: 10px;
 			}
+			.bk-container-current {
+				position: absolute;
+				height: 32px;
+				width: 32px;
+				border-radius: 16px;
+				border: 1px #ff7800 solid;
+				display: inline-block;
+				top: -2px;
+				left: -2px;
+			}
 			.bk-container-bg-color1 {
 				background: #f7eee5;
 			}
@@ -146,16 +156,6 @@
 			}
 			.bk-container-bg-color5 {
 				background: #283548;
-			}
-			.bk-container-current {
-				position: absolute;
-				height: 32px;
-				width: 32px;
-				border-radius: 16px;
-				border: 1px #ff7800 solid;
-				display: inline-block;
-				top: -2px;
-				left: -2px;
 			}
 			/*底部导航*/
 			.bottom-nav {
@@ -297,20 +297,20 @@
 				<div class="child-mod" id="bk-container">
 					<span>背景</span>
 					<div class="bk-container bk-container-bg-color1">
-						<div class="bk-container-current"></div>
+						<div></div>
 					</div>
 					
 					<div class="bk-container bk-container-bg-color2">
-						<div class="bk-container-current"></div>
+						<div></div>
 					</div>
 					<div class="bk-container bk-container-bg-color3">
-						<div class="bk-container-current"></div>
+						<div></div>
 					</div>
 					<div class="bk-container bk-container-bg-color4">
-						<div class="bk-container-current"></div>
+						<div></div>
 					</div>
 					<div class="bk-container bk-container-bg-color5">
-						<div class="bk-container-current"></div>
+						<div></div>
 					</div>
 				</div>
 			</div>
@@ -353,7 +353,7 @@
 						return localStorage.getItem(prefix + key);
 					}
 					var StorageSetter = function(key,val){
-						return localStorage.getItem(prefix + key,val);
+						return localStorage.setItem(prefix + key,val);
 					}
 					return {
 						StorageGetter: StorageGetter,
@@ -370,6 +370,23 @@
 				}
 				var Win = $(window);
 				var Doc = $(document);
+				var Body = $('body');
+				//字体切换
+				var RootContainer = $('#fiction_container');
+				var initFontSize = Util.StorageGetter('font-size');
+				initFontSize = parseInt(initFontSize);
+				if(!initFontSize) {
+					initFontSize = 14;
+				}
+				RootContainer.css('font-size',initFontSize);
+				//背景切换
+				var initBackgroundColor = Util.StorageGetter('background');
+				if(!initBackgroundColor){
+					initBackgroundColor = '#e9dfc7';
+					$('.bk-container-bg-color1').children().addClass('bk-container-current');
+				}
+				Body.css('background',initBackgroundColor);
+				
 				function main(){
 					//todo 整个项目的入口函数
 					EventHanlder();
@@ -416,6 +433,58 @@
 					//底部导航夜间模式切换
 					Dom.bottom_icon_night.click(function(){
 						//todo 出发背景切换的事件
+						initBackgroundColor = '#283548';
+						Body.css('background',initBackgroundColor);
+						Util.StorageSetter('background',initBackgroundColor);
+					});
+					
+					$('#large-font').click(function(){
+						if(initFontSize > 20) {
+							return;
+						}
+						initFontSize += 1;
+						RootContainer.css('font-size',initFontSize);
+						Util.StorageSetter('font-size',initFontSize);
+					});
+					
+					$('#small-font').click(function(){
+						if(initFontSize < 12) {
+							return;
+						}
+						initFontSize -= 1;
+						RootContainer.css('font-size',initFontSize);
+						Util.StorageSetter('font-size',initFontSize);
+					});
+					
+					$('.bk-container-bg-color1').click(function(){
+						$('.bk-container-bg-color1').children().addClass('bk-container-current');
+						initBackgroundColor = '#f7eee5';
+						Body.css('background',initBackgroundColor);
+						Util.StorageSetter('background',initBackgroundColor);
+					});
+					$('.bk-container-bg-color2').click(function(){
+						if($('.bk-container-bg-color2').css('background') != initBackgroundColor) {
+							console.log($('.bk-container-bg-color2').css('background-color') +"------" +initBackgroundColor);
+							console.log($('.bk-container-bg-color1').childNodes);
+						}
+						initBackgroundColor = '#e9dfc7';
+						Body.css('background',initBackgroundColor);
+						Util.StorageSetter('background',initBackgroundColor);
+					});
+					$('.bk-container-bg-color3').click(function(){
+						initBackgroundColor = '#a4a4a4';
+						Body.css('background',initBackgroundColor);
+						Util.StorageSetter('background',initBackgroundColor);
+					});
+					$('.bk-container-bg-color4').click(function(){
+						initBackgroundColor = '#cdefce';
+						Body.css('background',initBackgroundColor);
+						Util.StorageSetter('background',initBackgroundColor);
+					});
+					$('.bk-container-bg-color5').click(function(){
+						initBackgroundColor = '#283548';
+						Body.css('background',initBackgroundColor);
+						Util.StorageSetter('background',initBackgroundColor);
 					});
 					
 					//滚动隐藏上下导航
