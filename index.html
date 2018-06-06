@@ -424,7 +424,7 @@
 							callback && callback();
 						}, 'json');
 					}
-					var getCurChapterContent = function(chapter_id) {
+					var getCurChapterContent = function(chapter_id,callback) {
 						$.get('./data/data' + chapter_id + '.json', function(data){
 							if(data.result == 0){
 								var url = data.jsonp;
