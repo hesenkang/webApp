@@ -251,7 +251,7 @@
 		    </div>
 			<div id="fiction_chapter_title"></div>
 			<div id="fiction_container" class="m-read-content">
-			    <h4>程序员遭"恶妻"勒索千万自杀</h4>
+			    <!--<h4>程序员遭"恶妻"勒索千万自杀</h4>
 				<p>
 				    9月6日，WePhone的创始人兼开发者苏享茂在Google+留下一份网帖称，
 				        前妻翟某某向他索要1000万人民币和一套房产。由于自己没有1000万又走投无路，
@@ -279,7 +279,7 @@
 				        对此，翟欣欣称，亲戚找了税务局的朋友，离婚后没有继续追究苏。“离婚协议第7条，
 				        我收到全部补偿款后，不再打扰你的工作及公司业务，
 				        届时也会让亲戚撤销对你的举报。”她还让苏享茂尽快给剩余的钱。
-				</p>
+				</p>-->
 			</div>
 			<div class="m-button-bar">
 				<ul class="u-tab">
@@ -347,6 +347,7 @@
 		<script src="js/jquery.jsonp.js"></script>
 		<script>
 			(function(){
+				'use strict'
 				var Util = (function() {
 					var prefix = 'html5_reader_';
 					var StorageGetter = function(key) {
@@ -363,7 +364,7 @@
 							success: function(result) {
 								var data = $.base64.decode(result);
 								var json = decodeURIComponent(escape(data));
-								callback(data);
+								callback(json);
 							}
 						});
 					}
@@ -384,6 +385,8 @@
 				var Win = $(window);
 				var Doc = $(document);
 				var Body = $('body');
+				var readerModel;
+				var readerUI;
 				//字体切换
 				var RootContainer = $('#fiction_container');
 				var initFontSize = Util.StorageGetter('font-size');
@@ -402,28 +405,63 @@
 				
 				function main(){
 					//todo 整个项目的入口函数
-					var readerModel = ReaderModel();
-					readerModel.init();
+					readerModel = ReaderModel();
+					readerUI = ReaderBaseFrame(RootContainer);
+					readerModel.init(function(data){
+						readerUI(data);
+					});
 					EventHanlder();
 				}
 				
 				function ReaderModel(){
 					//todo 实现和阅读器相关的数据交互的方法
 					var Chapter_id;
-					var init = function(){
-						getFictionInfo(function(){
-							getCurChapterContent(Chapter_id,function(){
+					var ChapterTotal;
+					var init = function(UIcallback){
+						/*getFictionInfo(function(){
+							getCurChapterContent(Chapter_id,function(data){
 								//todo
+								UIcallback && UIcallback(data);
 							});
+						});
+						*/
+						getFictionInfoPromise().then(function(){
+							return getCurChapterContentPromise();
+						}).then(function(data){
+							UIcallback && UIcallback(data);
 						});
 					}
 					var getFictionInfo = function(callback) {
 						$.get('./data/chapter.json', function(data) {
 							//todo 获得章节信息之后的回调
-							Chapter_id = data.chapters[1].chapter_id;
+							Chapter_id = Util.StorageGetter('last_chapter_id');
+							if(Chapter_id == null) {
+								Chapter_id = data.chapters[1].chapter_id;
+							}
+							ChapterTotal = data.chapters.length;
 							callback && callback();
 						}, 'json');
 					}
+					
+					var getFictionInfoPromise = function() {
+						return new Promise(function(resolve,reject){
+							$.get('./data/chapter.json', function(data) {
+								//todo 获得章节信息之后的回调
+								if(data.result == 0) {
+									Chapter_id = Util.StorageGetter('last_chapter_id');
+									if(Chapter_id == null) {
+										Chapter_id = data.chapters[1].chapter_id;
+									}
+									ChapterTotal = data.chapters.length;
+									resolve();
+								} else {
+									reject();
+								}
+								
+							}, 'json');
+						});
+					} 
+					
 					var getCurChapterContent = function(chapter_id,callback) {
 						$.get('./data/data' + chapter_id + '.json', function(data){
 							if(data.result == 0){
@@ -434,13 +472,65 @@
 							}
 						}, 'json')
 					}
-					return {
-						init: init
+					
+					var getCurChapterContentPromise = function(){
+						return new Promise(function(resolve,reject){
+							$.get('./data/data' + Chapter_id + '.json', function(data){
+								if(data.result == 0){
+									var url = data.jsonp;
+									Util.getJSONP(url,function(data){
+										resolve(data);
+									});
+								} else {
+									reject({msg: '失败了！'});
+								}
+							}, 'json')
+						});
 					}
+					
+					var prevChapter = function(UIcallback) {
+						Chapter_id = parseInt(Chapter_id,10);
+						if(Chapter_id == 1){
+							return;
+						} else {
+							Chapter_id -= 1;
+							getCurChapterContent(Chapter_id,UIcallback);
+						}
+						Util.StorageSetter('last_chapter_id',Chapter_id);
+					}
+					
+					var nextChapter = function(UIcallback) {
+						Chapter_id = parseInt(Chapter_id,10);
+						if(Chapter_id == ChapterTotal || Chapter_id == 4){
+							return;
+						} else {
+							Chapter_id += 1;
+							getCurChapterContent(Chapter_id,UIcallback);
+						}
+						Util.StorageSetter('last_chapter_id',Chapter_id);
+					}
+					
+					return {
+						init: init,
+						prevChapter: prevChapter,
+						nextChapter: nextChapter
+					}
+					
 				}
 				
-				function ReaderBaseFrame(){
+				function ReaderBaseFrame(container){
 					//todo 渲染基本的UI结构
+					function parseChapterData(jsonData) {
+						var jsonObj = JSON.parse(jsonData);
+						var html = '<h4>' + jsonObj.t + '</h4>';
+						for(var i = 0; i<jsonObj.p.length; i++) {
+							html += '<p>' + jsonObj.p[i] +'</p>';
+						}
+						return html;
+					}
+					return function(data){
+						container.html(parseChapterData(data));
+					}
 				}
 				
 				function EventHanlder(){
@@ -537,6 +627,20 @@
 						Dom.bottom_icon_family.removeClass('bottom-icon-arr-click');
 					});
 					
+					//上一章节
+					$('#prev_button').click(function(){
+						//todo 获得章节的翻页数据->取得数据进行渲染
+						readerModel.prevChapter(function(data){
+							readerUI(data);
+						});
+					});
+					
+					//下一章节
+					$('#next_button').click(function(){
+						readerModel.nextChapter(function(data){
+							readerUI(data);
+						});
+					});
 				}
 				
 				main();
